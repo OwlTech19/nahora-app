@@ -7,6 +7,7 @@ import { CredentialsParamList } from '../types';
 import Login from '../screens/credentials/login';
 import Recover from '../screens/credentials/recover';
 import Register from '../screens/credentials/register';
+import RecoverConfirm from '../screens/credentials/recover-confirm';
 
 const CredentialsTab = createStackNavigator<CredentialsParamList>();
 
@@ -25,6 +26,11 @@ export default function CredentiaslsTabNavigator() {
       <CredentialsTab.Screen
         name="Recover"
         component={Recover}
+        options={{ headerShown: false }}
+      />
+      <CredentialsTab.Screen
+        name="RecoverConfirm"
+        component={RecoverConfirm}
         options={{ headerShown: false }}
       />
       <CredentialsTab.Screen

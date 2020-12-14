@@ -13,6 +13,7 @@ export type BottomTabParamList = {
 export type CredentialsParamList = {
   Login: undefined;
   Recover: undefined;
+  RecoverConfirm: undefined;
   Register: undefined;
 };
 

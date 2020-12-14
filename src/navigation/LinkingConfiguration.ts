@@ -21,6 +21,11 @@ export default {
               RecoverScreen: 'Recover',
             },
           },
+          RecoverConfirm: {
+            screens: {
+              RecoverScreen: 'RecoverConfirm',
+            },
+          },
         },
       },
       Content: {
