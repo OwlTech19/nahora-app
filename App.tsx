@@ -7,13 +7,20 @@ import useCachedResources from './src/hooks/useCachedResources';
 import useColorScheme from './src/hooks/useColorScheme';
 import Navigation from './src/navigation';
 
+import * as firebase from 'firebase';
 import FirebaseInit from './src/subscribes/firebase';
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
 
-  useEffect(()=> FirebaseInit(),[]);
+
+  
+  useEffect(()=> {
+    if (!firebase.apps.length) {
+      FirebaseInit();
+    }
+  });
 
   if (!isLoadingComplete) {
     return null;

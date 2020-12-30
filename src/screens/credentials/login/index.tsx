@@ -1,14 +1,61 @@
-import React from 'react';
-import { CheckBox, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, CheckBox, Image, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { Dw, Dh } from '../../../utils/dimensions';
+import * as firebase from 'firebase';
+import * as Facebook from 'expo-facebook'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login({ navigation }: any) {
+
+  const [login, setLogin]: any = useState( {
+    email: '',
+    password: '',
+  });
+  
+  const validLogin = async() => {
+
+    firebase.auth()
+      .signInWithEmailAndPassword(login.email, login.password)
+      .then(res => {
+        console.log(res)
+        AsyncStorage.setItem('user', JSON.stringify(res.user));
+        navigation.navigate('Content');
+      })
+      .catch(function (error) {
+        ToastAndroid.show(error.toString(), ToastAndroid.SHORT);
+        setLogin({...login,password: ''});
+      });
+  }
+
+  async function logIn() {
+    try {
+      await Facebook.initializeAsync({
+        appId: '415749139546748',
+      });
+      const {
+        type,
+        token,
+      } = await Facebook.logInWithReadPermissionsAsync({
+        permissions: ['public_profile'],
+      });
+      if (type === 'success') {
+        // Get the user's name using Facebook's Graph API
+        const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
+        Alert.alert('Logged in!', `Hi ${(await response.json()).name}!`);
+      } else {
+        // type === 'cancel'
+      }
+    } catch ({ message }) {
+      alert(`Facebook Login Error: ${message}`);
+    }
+  }
+  
   return (
     <View style={styles.container}>
       <Image source={require('../../../assets/images/logo.png')} style={styles.imgLogo} />
 
-      <TextInput placeholder="E-mail" style={styles.input} />
-      <TextInput placeholder="Senha" secureTextEntry={true} style={styles.input} />
+      <TextInput placeholder="E-mail" style={styles.input} value={login.email} onChangeText={e => setLogin({...login,email: e})}/>
+      <TextInput placeholder="Senha" secureTextEntry={true} style={styles.input} value={login.password} onChangeText={e => setLogin({...login,password: e})}/>
 
       <View style={styles.viewRow}>
         <View style={styles.viewChk}>
@@ -21,7 +68,8 @@ export default function Login({ navigation }: any) {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.btnEntrar}>
+      <TouchableOpacity style={styles.btnEntrar}
+      onPress={() => validLogin()}>
         <Text style={styles.txtBtnEntrar}>Entrar</Text>
       </TouchableOpacity>
 
@@ -35,7 +83,8 @@ export default function Login({ navigation }: any) {
 
       <Text>Se preferir, faça login com:</Text>
       <View style={styles.viewLoginIcon}>
-        <TouchableOpacity activeOpacity={1}>
+        <TouchableOpacity activeOpacity={1}
+        onPress={() => logIn()}>
           <Image source={require('../../../assets/images/facebook.png')} style={styles.image} />
         </TouchableOpacity>
         <TouchableOpacity activeOpacity={1}>
