@@ -1,18 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TouchableOpacity, Image, TextInput } from 'react-native';
 import { StyleSheet, Text, View } from 'react-native';
 import { Dw } from '../../../utils/dimensions';
+import * as firebase from 'firebase';
 
 export default function Recover({ navigation }: any) {
+  const [email, setEmail] = useState('');
+
+  const resetPass = () => {
+    firebase.auth().sendPasswordResetEmail(email);
+    navigation.navigate('RecoverConfirm');
+  }
+
   return (
     <View style={styles.container}>
       <Image source={require('../../../assets/images/logo.png')} style={styles.imgLogo} />
 
       <Text style={styles.text}>Para recuperar sua senha, digite o e-mail cadastrado: </Text>
-      <TextInput placeholder="E-mail" style={styles.input} />
+      <TextInput placeholder="E-mail" style={styles.input} onChangeText={e => setEmail(e)} />
 
       <TouchableOpacity style={styles.btnEntrar}
-        onPress={() => navigation.navigate('RecoverConfirm')}
+        onPress={resetPass}
       >
         <Text style={styles.txtBtnEntrar}>
           Enviar

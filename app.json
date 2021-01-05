@@ -18,6 +18,9 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "facebookScheme": "fb415749139546748",
+    "facebookAppId": "415749139546748",
+    "facebookDisplayName": "Na-Hora App",
     "ios": {
       "supportsTablet": true
     },
@@ -25,7 +28,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.jeff_ti.nahoraapp"
     },
     "web": {
       "favicon": "./src/assets/images/favicon.png"

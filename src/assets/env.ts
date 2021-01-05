@@ -1,0 +1,1 @@
+export const AND_CLIENT_ID = '640755541390-pjt9pgfmfmqfqa94lf28fjnpbhktrdui.apps.googleusercontent.com';

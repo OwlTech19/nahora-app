@@ -1,33 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Alert, CheckBox, Image, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import { Dw, Dh } from '../../../utils/dimensions';
 import * as firebase from 'firebase';
 import * as Facebook from 'expo-facebook'
+import * as Google from 'expo-google-app-auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AND_CLIENT_ID } from '../../../assets/env';
+
 
 export default function Login({ navigation }: any) {
 
-  const [login, setLogin]: any = useState( {
+  const [login, setLogin]: any = useState({
     email: '',
     password: '',
   });
-  
-  const validLogin = async() => {
+  const [remember, setRemember] = useState(false);
+
+  useEffect(() => {
+    loadRemeber();
+  }, []);
+
+  const validLogin = async () => {
 
     firebase.auth()
       .signInWithEmailAndPassword(login.email, login.password)
       .then(res => {
-        console.log(res)
-        AsyncStorage.setItem('user', JSON.stringify(res.user));
+        console.log(res);
+
+        if (remember) {
+          AsyncStorage.setItem('user', JSON.stringify(res.user));
+        }
+
+        AsyncStorage.setItem('userRemember', JSON.stringify(remember));
+
         navigation.navigate('Content');
       })
       .catch(function (error) {
         ToastAndroid.show(error.toString(), ToastAndroid.SHORT);
-        setLogin({...login,password: ''});
+        setLogin({ ...login, password: '' });
       });
   }
 
-  async function logIn() {
+  const handleSetRemeber = () => {
+    setRemember(!remember);
+  }
+
+  const loadRemeber = async () => {
+    let _remember = await AsyncStorage.getItem('userRemember');
+    setRemember(_remember == 'true');
+  }
+
+  const loginWithFacebook = async () => {
     try {
       await Facebook.initializeAsync({
         appId: '415749139546748',
@@ -49,18 +72,41 @@ export default function Login({ navigation }: any) {
       alert(`Facebook Login Error: ${message}`);
     }
   }
+
+  const loginWithGoogleAsync = async () => {
+    console.log('Chamou');
+    try {
+      const result = await Google.logInAsync({
+        androidClientId: AND_CLIENT_ID,
+        //iosClientId: YOUR_CLIENT_ID_HERE,
+        scopes: ['profile', 'email'],
+      });
   
+      if (result.type === 'success') {
+        return result.accessToken;
+      } else {
+        return { cancelled: true };
+      }
+    } catch (e) {
+      return { error: true };
+    }
+  }
+
+  const loginWithGoogle = () => {
+    loginWithGoogleAsync()
+  }
+
   return (
     <View style={styles.container}>
       <Image source={require('../../../assets/images/logo.png')} style={styles.imgLogo} />
 
-      <TextInput placeholder="E-mail" style={styles.input} value={login.email} onChangeText={e => setLogin({...login,email: e})}/>
-      <TextInput placeholder="Senha" secureTextEntry={true} style={styles.input} value={login.password} onChangeText={e => setLogin({...login,password: e})}/>
+      <TextInput placeholder="E-mail" style={styles.input} value={login.email} onChangeText={e => setLogin({ ...login, email: e })} />
+      <TextInput placeholder="Senha" secureTextEntry={true} style={styles.input} value={login.password} onChangeText={e => setLogin({ ...login, password: e })} />
 
       <View style={styles.viewRow}>
         <View style={styles.viewChk}>
-          <CheckBox />
-          <Text style={styles.textChk}>Lembrar credenciais </Text>
+          <CheckBox value={remember} onChange={handleSetRemeber} />
+          <Text style={styles.textChk} onPress={handleSetRemeber}>Lembrar credenciais </Text>
         </View>
         <TouchableOpacity activeOpacity={1}
           onPress={() => navigation.navigate('Recover')}>
@@ -69,7 +115,7 @@ export default function Login({ navigation }: any) {
       </View>
 
       <TouchableOpacity style={styles.btnEntrar}
-      onPress={() => validLogin()}>
+        onPress={() => validLogin()}>
         <Text style={styles.txtBtnEntrar}>Entrar</Text>
       </TouchableOpacity>
 
@@ -84,10 +130,11 @@ export default function Login({ navigation }: any) {
       <Text>Se preferir, faça login com:</Text>
       <View style={styles.viewLoginIcon}>
         <TouchableOpacity activeOpacity={1}
-        onPress={() => logIn()}>
+          onPress={() => loginWithFacebook()}>
           <Image source={require('../../../assets/images/facebook.png')} style={styles.image} />
         </TouchableOpacity>
-        <TouchableOpacity activeOpacity={1}>
+        <TouchableOpacity activeOpacity={1}
+          onPress={() => loginWithGoogle()}>
           <Image source={require('../../../assets/images/google.png')} style={styles.image} />
         </TouchableOpacity>
 
