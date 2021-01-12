@@ -7,17 +7,21 @@ import * as Google from 'expo-google-app-auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AND_CLIENT_ID } from '../../../assets/env';
 
+interface userLogged {
+  email?: string;
+  password: string;
+}
 
 export default function Login({ navigation }: any) {
 
   const [login, setLogin]: any = useState({
-    email: '',
-    password: '',
+    email: 'owl@teste.com',
+    password: '123456',
   });
   const [remember, setRemember] = useState(false);
 
   useEffect(() => {
-    loadRemeber();
+    //loadRemeber();
   }, []);
 
   const validLogin = async () => {
@@ -25,10 +29,16 @@ export default function Login({ navigation }: any) {
     firebase.auth()
       .signInWithEmailAndPassword(login.email, login.password)
       .then(res => {
-        console.log(res);
+
+        const userLogged: userLogged = {
+          email: res?.user?.email || '',
+          password: login.password
+        }
+
+        console.log('valid', userLogged)
 
         if (remember) {
-          AsyncStorage.setItem('user', JSON.stringify(res.user));
+          AsyncStorage.setItem('user', JSON.stringify(userLogged));
         }
 
         AsyncStorage.setItem('userRemember', JSON.stringify(remember));
@@ -47,7 +57,19 @@ export default function Login({ navigation }: any) {
 
   const loadRemeber = async () => {
     let _remember = await AsyncStorage.getItem('userRemember');
-    setRemember(_remember == 'true');
+    setRemember(_remember == 'true' ? true: false);
+
+    if (_remember == 'true') {
+
+      let userLogged: any = await AsyncStorage.getItem('user');
+      userLogged = JSON.parse(userLogged);
+
+      await setLogin({ email: userLogged.email, password: userLogged.password });
+
+      console.log('load', login)
+
+      validLogin();
+    }
   }
 
   const loginWithFacebook = async () => {
@@ -57,7 +79,7 @@ export default function Login({ navigation }: any) {
       });
       const {
         type,
-        token,
+        // token,
       } = await Facebook.logInWithReadPermissionsAsync({
         permissions: ['public_profile'],
       });
@@ -81,7 +103,7 @@ export default function Login({ navigation }: any) {
         //iosClientId: YOUR_CLIENT_ID_HERE,
         scopes: ['profile', 'email'],
       });
-  
+
       if (result.type === 'success') {
         return result.accessToken;
       } else {

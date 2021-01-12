@@ -9,6 +9,7 @@ import Recover from '../screens/credentials/recover';
 import Register from '../screens/credentials/register';
 import { Settings } from 'react-native';
 import Home from '../screens/content/home';
+import NewAppointment from '../screens/content/new-appointment';
 
 const ContentTab = createStackNavigator<ContentParamList>();
 
@@ -23,11 +24,12 @@ export default function BottomTabNavigator() {
         name="Home"
         component={Home}
       />
-      {/*
       <ContentTab.Screen
         name="NewAppointment"
         component={NewAppointment}
+        options={{ headerShown: false }}
       />
+      {/*
       <ContentTab.Screen
         name="Schedule"
         component={Schedule}
